@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 1: AB Testing Learning Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Section 1: AB Testing Learning Guide</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#introduction">Introduction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#code-understanding">Code Understanding</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#python-basics">Python Basics</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <section id="introduction" class="mb-5">
+            <h2>Introduction to AB Testing (For Aris)</h2>
+            <div class="card">
+                <div class="card-body">
+                    <h3>What is AB Testing?</h3>
+                    <p>AB testing is a common experimental method used to compare the effectiveness of two or more versions. In data analysis, it helps us determine which version produces better results.</p>
+                    
+                    <h3>Core Concepts</h3>
+                    <ul>
+                        <li>Treatment Group and Control Group</li>
+                        <li>Click Through Rate (CTR)</li>
+                        <li>Data Validation and Cleaning</li>
+                        <li>Statistical Significance</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="code-understanding" class="mb-5">
+            <h2>Code Understanding</h2>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 1: Loading Data</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>We have three CSV files that contain simulated AB test data:</p>
+                        <ul>
+                            <li><code>sim_ab_test_assignment.csv</code>: Contains the group assignment information</li>
+                            <li><code>sim_ab_test_clicks.csv</code>: Contains the click data</li>
+                            <li><code>sim_ab_test_views.csv</code>: Contains the view data</li>
+                        </ul>
+                        <p>Try to:</p>
+                        <ol>
+                            <li>Load these files using NumPy</li>
+                            <li>Consider the appropriate data types for each file</li>
+                            <li>Check the basic properties of the loaded data</li>
+                        </ol>
+                    </div>
+                    <pre><code class="language-python">
+# Task 1
+# Load the files into sensible variable names using numpy
+import numpy as np
+
+# To load data by numpy, when the text contains strings, we need to declare the dtype of the text
+# The default of the method is numeric
+assignment = np.loadtxt('sim_ab_test_assignment.csv', dtype='str', delimiter=',')
+clicks = np.loadtxt('sim_ab_test_clicks.csv', delimiter=',')
+views = np.loadtxt('sim_ab_test_views.csv', delimiter=',')
+
+# Check the data types and shapes
+print("Assignment type:", type(assignment))
+print("Assignment shape:", assignment.shape)
+print("Clicks shape:", clicks.shape)
+print("Views shape:", views.shape)
+                    </code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 2: Data Examination</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>Now that we have loaded the data, we need to understand its structure:</p>
+                        <ol>
+                            <li>What are the dimensions of each dataset?</li>
+                            <li>How do the dimensions relate to each other?</li>
+                            <li>What do the actual values look like?</li>
+                        </ol>
+                        <p>Try to:</p>
+                        <ul>
+                            <li>Examine the shape of each dataset</li>
+                            <li>Look at the first few rows of each dataset</li>
+                            <li>Think about what each dimension represents</li>
+                        </ul>
+                    </div>
+                    <pre><code class="language-python">
+# Task 2
+# Examine the data dimensions and sample values
+print("Assignment shape:", assignment.shape)
+print("Clicks shape:", clicks.shape)
+print("Views shape:", views.shape)
+
+# Look at sample values
+print("\nFirst 3 rows of clicks:")
+print(clicks[:3])
+print("\nFirst 3 rows of views:")
+print(views[:3])
+print("\nFirst 3 rows of assignment:")
+print(assignment[:3])
+                    </code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 3: Data Validation</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>Before analyzing the data, we need to ensure its quality. Consider these questions:</p>
+                        <ol>
+                            <li>Are there any missing values in the data?</li>
+                            <li>Are there any negative values where they shouldn't be?</li>
+                            <li>Do the clicks make sense compared to views?</li>
+                            <li>What's the distribution of zeros in the data?</li>
+                        </ol>
+                        <p>Try to:</p>
+                        <ul>
+                            <li>Check for NaN values</li>
+                            <li>Verify that clicks are always less than or equal to views</li>
+                            <li>Calculate the percentage of zeros in both clicks and views</li>
+                        </ul>
+                    </div>
+                    <pre><code class="language-python">
+# Task 3
+# Calculate summary statistics and validate data quality
+
+# Check for NaN values
+check_nan_clicks = np.isnan(clicks).any()
+print("Are there any NaN values in clicks?", check_nan_clicks)
+
+# Check for negative numbers
+any_negative = np.min(clicks) < 0
+print("Are there negative numbers?", any_negative)
+
+# Check if clicks are less than or equal to views
+are_clicks_less_views = (clicks <= views).all()
+print("Are all clicks less than or equal to views?", are_clicks_less_views)
+
+# Calculate zero rate for clicks
+freq_clicks_zero = (clicks == 0).mean()
+print("Percentage of zeros in clicks: {:.2f}%".format(freq_clicks_zero * 100))
+
+# Check views data
+check_nan_views = np.isnan(views).any()
+print("Are there any NaN values in views?", check_nan_views)
+
+views_bigger_clicks = (views >= clicks).all()
+print("Are all views bigger than clicks?", views_bigger_clicks)
+
+freq_views_zero = (views == 0).mean()
+print("Percentage of zeros in views: {:.2f}%".format(freq_views_zero * 100))
+                    </code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 4: Click Through Rate Calculation</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>We need to calculate the Click Through Rate (CTR) in two ways:</p>
+                        <ol>
+                            <li>Total CTR: total clicks divided by total views</li>
+                            <li>Average CTR per user: average of (user's total clicks / user's total views)</li>
+                        </ol>
+                        <p>Try to:</p>
+                        <ul>
+                            <li>Calculate the overall CTR</li>
+                            <li>Calculate CTR for each user</li>
+                            <li>Compare the two metrics and think about their differences</li>
+                        </ul>
+                    </div>
+                    <pre><code class="language-python">
+# Task 4
+# Calculate total CTR and average CTR per user
+
+# Total CTR calculation
+percentage_total = np.sum(clicks) / np.sum(views)
+print("Total CTR: {:.2f}%".format(percentage_total * 100))
+
+# Calculate CTR for each user
+each_user_clicks = np.apply_along_axis(np.sum, 1, clicks)
+each_user_views = np.apply_along_axis(np.sum, 1, views)
+ctr_each_user = (each_user_clicks / each_user_views).mean()
+print("Average CTR per user: {:.2f}%".format(ctr_each_user * 100))
+                    </code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 5: Metric Comparison</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>Let's analyze how individual users affect our metrics:</p>
+                        <ol>
+                            <li>What happens if we remove the most active user?</li>
+                            <li>How do our metrics change?</li>
+                            <li>Which metric is more robust to outliers?</li>
+                        </ol>
+                        <p>Try to:</p>
+                        <ul>
+                            <li>Identify the most active user</li>
+                            <li>Remove this user and recalculate both metrics</li>
+                            <li>Compare the changes in both metrics</li>
+                            <li>Think about which metric you would recommend and why</li>
+                        </ul>
+                    </div>
+                    <pre><code class="language-python">
+# Task 5
+# Compare metrics after removing most active user
+
+# Create copies of data
+each_user_clicks_2 = each_user_clicks.copy()
+each_user_views_2 = each_user_views.copy()
+
+# Remove most active user
+each_user_clicks_2_new = np.delete(each_user_clicks_2, each_user_clicks_2.argmax())
+each_user_views_2_new = np.delete(each_user_views_2, each_user_views_2.argmax())
+
+# Calculate new metrics
+new_total_ctr = np.sum(each_user_clicks_2_new) / np.sum(each_user_views_2_new)
+change_rate = (percentage_total - new_total_ctr) / percentage_total
+print("Change in total CTR after removing most active user: {:.2f}%".format(change_rate * 100))
+
+# Calculate new average CTR
+new_avg_ctr = np.mean(each_user_clicks_2_new / each_user_views_2_new)
+print("New average CTR: {:.2f}%".format(new_avg_ctr * 100))
+                    </code></pre>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Task 6: Treatment Group Analysis</h3>
+                    <div class="task-description mb-3">
+                        <h4>Problem Description:</h4>
+                        <p>Now we need to analyze the AB test results:</p>
+                        <ol>
+                            <li>What's the CTR for the treatment group?</li>
+                            <li>What's the CTR for the control group?</li>
+                            <li>How can we make this analysis more efficient?</li>
+                        </ol>
+                        <p>Try to:</p>
+                        <ul>
+                            <li>Separate the data into treatment and control groups</li>
+                            <li>Calculate CTR for each group</li>
+                            <li>Create a reusable function for CTR calculation</li>
+                            <li>Compare the results between groups</li>
+                        </ul>
+                    </div>
+                    <pre><code class="language-python">
+# Task 6
+# Calculate metrics for treatment groups
+
+# Identify treatment and control groups
+is_treatment = assignment == 'True'
+is_control = assignment == 'False'
+
+# Calculate CTR for treatment group
+treatment_ctr = np.sum(each_user_clicks[is_treatment]) / np.sum(each_user_views[is_treatment])
+print("Treatment group CTR: {:.2f}%".format(treatment_ctr * 100))
+
+# Calculate CTR for control group
+control_ctr = np.sum(each_user_clicks[is_control]) / np.sum(each_user_views[is_control])
+print("Control group CTR: {:.2f}%".format(control_ctr * 100))
+
+# Create a function to calculate CTR
+def get_ctr(assign, clicks, views):
+    is_treatment = assign == 'True'
+    is_control = assign == 'False'
+    
+    is_treat_clicks = clicks[is_treatment, :]
+    is_control_clicks = clicks[is_control, :]
+    is_treat_views = views[is_treatment, :]
+    is_control_views = views[is_control, :]
+    
+    each_treat_clicks = np.apply_along_axis(np.sum, 1, is_treat_clicks)
+    each_treat_views = np.apply_along_axis(np.sum, 1, is_treat_views)
+    each_control_clicks = np.apply_along_axis(np.sum, 1, is_control_clicks)
+    each_control_views = np.apply_along_axis(np.sum, 1, is_control_views)
+    
+    ctr_treat = np.sum(each_treat_clicks) / np.sum(each_treat_views)
+    ctr_control = np.sum(each_control_clicks) / np.sum(each_control_views)
+    return ctr_treat, ctr_control
+
+# Use the function to calculate CTRs
+treatment_ctr, control_ctr = get_ctr(assignment, clicks, views)
+print("Treatment group CTR (using function): {:.2f}%".format(treatment_ctr * 100))
+print("Control group CTR (using function): {:.2f}%".format(control_ctr * 100))
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="python-basics" class="mb-5">
+            <h2>Python Basics Guide</h2>
+            <div class="card">
+                <div class="card-body">
+                    <h3>NumPy Basic Operations</h3>
+                    <ul>
+                        <li>Array Operations: np.array(), np.loadtxt()</li>
+                        <li>Data Validation: np.isnan(), np.any(), np.all()</li>
+                        <li>Statistical Calculations: np.sum(), np.mean()</li>
+                        <li>Array Indexing and Slicing</li>
+                    </ul>
+
+                    <h3>Common Function Examples</h3>
+                    <pre><code class="language-python">
+# Array operation example
+arr = np.array([1, 2, 3, 4, 5])
+print(arr.mean())  # Calculate mean
+print(arr.sum())   # Calculate sum
+
+# Conditional operation example
+mask = arr > 3
+filtered_arr = arr[mask]  # Get elements greater than 3
+                    </code></pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-dark text-light mt-5 py-3">
+        <div class="container text-center">
+            <p>AB Testing Learning Guide &copy; 2024</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
